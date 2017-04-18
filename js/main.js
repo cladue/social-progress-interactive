@@ -1,1 +1,1 @@
-/* JavaScript by Calvin LaDue, Dylan Osborn, and Seka Major */
+/* __AUTHORS__JavaScript by Calvin LaDue, Dylan Osborn, and Seka Major */
