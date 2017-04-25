@@ -7,7 +7,7 @@ function setMap(){
 
     //map frame dimensions
     var width = 1100,
-        height = 600;
+        height = 700;
 
     //create new svg container for the map
     var map = d3.select("body")
@@ -15,13 +15,16 @@ function setMap(){
         .attr("class", "map")
         .attr("width", width)
         .attr("height", height);
-
+        //create Albers equal area conic projection centered on France
     var projection = d3.geoRobinson()
+
         .scale(200)
-        .translate([width / 2, (height / 2)+100]);
+        .translate([width / 2, height / 2]);
 
     var path = d3.geoPath()
         .projection(projection);
+
+
 
     //use d3.queue to parallelize asynchronous data loading
     d3.queue()
@@ -34,12 +37,12 @@ function setMap(){
             //translate europe TopoJSON
             var wholeWorld = topojson.feature(world, world.objects.ne_50m_admin_0_countries_lakes);
             //add Europe countries to map
-            // var world = map.append("path")
-            //   .datum(wholeWorld)
-            //   .attr("class", "countries")
-            //   .attr("d", path);
+            var world = map.append("path")
+              .datum(wholeWorld)
+              .attr("class", "countries")
+              .attr("d", path);
             var countries = map.selectAll(".countries")
-              .data(wholeWorld.features)
+              .data(worldCountries)
               .enter()
               .append("path")
               .attr("class", function(d){
