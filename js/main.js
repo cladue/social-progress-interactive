@@ -15,16 +15,13 @@ function setMap(){
         .attr("class", "map")
         .attr("width", width)
         .attr("height", height);
-        //create Albers equal area conic projection centered on France
-    var projection = d3.geoRobinson()
 
+    var projection = d3.geoRobinson()
         .scale(200)
         .translate([width / 2, height / 2]);
 
     var path = d3.geoPath()
         .projection(projection);
-
-
 
     //use d3.queue to parallelize asynchronous data loading
     d3.queue()
