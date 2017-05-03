@@ -63,8 +63,8 @@ option {
   background-color: #000;
   border: solid thin #fff;
   padding: 5px 10px;
-  top: -75px;
   font-family: sans-serif;
+  text-align: center;
 }
 
 .infolabel h1 {

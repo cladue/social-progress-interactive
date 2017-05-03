@@ -283,6 +283,7 @@ console.log(width);
       .on("mouseover", highlight)
       .on("mouseout", dehighlight)
       .on("mousemove", moveLabel);
+
     //add axes
     var axes = pcplot.selectAll(".attribute")  //prepare for new elements
       .data(attributes)  //bind data (attribute array)
@@ -308,9 +309,9 @@ console.log(width);
       });
     // pcplot.select("#"+expressed)  //select the expressed attribute's axis
     //       .style("stroke-width", "10px");
-      };
+};
 
-function highlight(data){
+/*function highlight(data){
   var props = datatest(data);  //standardize json on csv data
 
   d3.select("#"+props.adm0_a3)  //select the current province in the domain
@@ -320,23 +321,21 @@ function highlight(data){
   d3.selectAll(".pcpLines")  //select the pcp lines
       .select("#"+props.adm0_a3)  //select the right pcp line-height
       .style("stroke", "#ffd700");  //restyle the line-height
-};
+};*/
 
 function setLabel(props){
-  var labelAttribute = "<h1>"+props[expressed]+
-                       "</h1><br><b>"+expressed+"</b>";  //label content
-
-  var labelName = props.name;  //html string for name to go in child div
+  var labelAttribute = "<h1>"+props[expressed]+"</h1><br><b>"+expressed+"</b>";  //label content
 
   //create info label div
-  var infolabel = d3.select("body").append("div")
+  var infolabel = d3.select("body")
+      .append("div")
       .attr("class", "infolabel")  //for styling  label
       .attr("id", props.adm0_a3+"label")  //label for div
       .html(labelAttribute)  //add text
 
   var countryName = infolabel.append("div")
       .attr("class", "labelname")  //for styliing name
-      .html(labelName);  //add feature name to label
+      .html(props.name);  //add feature name to label
 
 };
 
@@ -362,7 +361,7 @@ function sequence(axis, csvData){
 
 function highlight(props){
     if (props.adm0_a3 < 1){
-          return false
+          return false;
     };
       //change stroke
       var selected = d3.selectAll("." + props.adm0_a3.replace(/ /g,"_"))//replace space with "_"
@@ -374,7 +373,7 @@ function highlight(props){
 
 function dehighlight(props){
   if (props.adm0_a3 < 1){
-    return false
+    return false;
   };
       var selected = d3.selectAll("." + props.adm0_a3.replace(/ /g,"_"))
         .style("stroke", function(){
@@ -383,19 +382,20 @@ function dehighlight(props){
         .style("stroke-width", function(){
             return getStyle(this, "stroke-width")
         });
+
+      //turns calls into seperate funtions to get information stored in the desc element for that style
+      function getStyle(element, styleName){
+            var styleText = d3.select(element)
+                .select("desc")
+                .text();
+            //then parse the JSON string to create a JSON object
+            var styleObject = JSON.parse(styleText);
+
+            return styleObject[styleName];
+        };
+
     d3.select(".infolabel")
         .remove();
-};
-
-//turns calls into seperate funtions to get information stored in the desc element for that style
-function getStyle(element, styleName){
-          var styleText = d3.select(element)
-              .select("desc")
-              .text();
-          //then parse the JSON string to create a JSON object
-          var styleObject = JSON.parse(styleText);
-
-          return styleObject[styleName];
 };
 
 //function to move info label with mouse
