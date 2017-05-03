@@ -7,10 +7,9 @@ var expressed = attrArray[0];
 
 //begin script when window loads
 window.onload = setMap();
-//onclick="openNav()"
+
 //set up choropleth map
 function setMap(){
-
     //map frame dimensions
     var width = 1125,
         height = 540;
@@ -52,15 +51,15 @@ function setMap(){
         //add enumeration units to map
         setEnumerationUnits(worldCountries, map, path, colorScale);
 
-        //changeAttribute(csvData);
         //create parallel coordinate plot
         drawPcp(csvData);
 
-      };
+        //add a dropdown to change mapped attribute
+        createDropdown(csvData);
+    };
 };
 
 function setGraticule(map, path){
-
     //create graticule generator
     var graticule = d3.geoGraticule()
       .step([50, 50]); //place graticule lines every 50 degrees of longitude and latitude
@@ -94,7 +93,6 @@ function joinData(worldCountries, csvData){
 
       //where primary keys match, transfer csv data to geojson properties object
       if (geojsonKey == csvKey){
-
           //assign all attributes and values
           attrArray.forEach(function(attr){
               var val = parseFloat(csvRegion[attr]); //get csv attribute value
@@ -124,14 +122,14 @@ function setEnumerationUnits(worldCountries, map, path, colorScale){
       })
       .on("mouseout", function(d){//event that occurs when mouse moves off county
         dehighlight(d.properties);//dehighlight
- })
+      })
       .on("mousemove", moveLabel);
-  var desc = countries.append("desc")
-      .text('{"stroke": "#000", "stroke-width": "0.5px"}');
+        var desc = countries.append("desc")
+        .text('{"stroke": "#000", "stroke-width": "0.5px"}');
 };
 
 function createColorScale(data){
-
+    //colors for color scale
     var colorClasses = [
       "#edf8fb",
       "#bfd3e6",
@@ -167,55 +165,45 @@ function choropleth(props, colorScale){
     } else {
         return "#CCC";
     };
-
 };
 
+function createDropdown(csvData){
+    //add select element
+    var dropdown = d3.select("body")
+        .append("select")
+        .attr("class", "dropdown")
+        .on("change", function(){
+            changeAttribute(this.value, csvData)
+        });
 
-function openNav() {
+    //add initial option to dropdown
+    var titleOption = dropdown.append("option")
+        .attr("class", "titleOption")
+        .attr("disabled", "true")
+        .text("Select Attribute");
 
-    var sideNav= d3.select("#mySidenav");
-    sideNav.style("width","250px")
-
+    var attrOptions = dropdown.selectAll("attrOptions")
+        .data(attrArray)
+        .enter()
+        .append("option")
+        .attr("value", function(d){return d})
+        .text(function(d){return d});
 };
 
-  function closeNav() {
-    var sideNav= d3.select("#mySidenav");
-    sideNav.style("width","0px")
-  };
-
-function changeAttribute(csvData){
-    var attribute;
-
-
-   $("#SPI").click(function(){
-      attribute = attrArray[0];
-    });
-    $("#BasicHumanNeeds").click(function(){
-      attribute = attrArray[1];
-    });
-     $("#FoundationsOfWellBeing").click(function(){
-      attribute = attrArray[2];
-    });
-    $("#Opportunity").click(function(){
-      attribute = attrArray[3];
-    });
-    //change the expressed attribute
+function changeAttribute(attribute, csvData){
+    //change expressed attribute
     expressed = attribute;
-    console.log(attribute);
-  //recreate the color scale
-   var colorScale = createColorScale(csvData);
 
-   //recolor enumeration units
-    var countries = d3.selectAll(".countries")
+    //change color scale
+    var colorScale = createColorScale(csvData);
+
+    //recolor countries based on expressed attribute
+    var states = d3.selectAll(".countries")
         .style("fill", function(d){
-           return choropleth(d.properties, colorScale)
-       });
+          return choropleth(d.properties, colorScale)
+        });
+};
 
-
-
-   };
-$("span").click(openNav);
-$(".closebtn").click(closeNav);
 function drawPcp(csvData){
    //pcp dimensions
   var width = 960;
@@ -321,6 +309,7 @@ console.log(width);
     // pcplot.select("#"+expressed)  //select the expressed attribute's axis
     //       .style("stroke-width", "10px");
       };
+
 function highlight(data){
   var props = datatest(data);  //standardize json on csv data
 
@@ -331,7 +320,8 @@ function highlight(data){
   d3.selectAll(".pcpLines")  //select the pcp lines
       .select("#"+props.adm0_a3)  //select the right pcp line-height
       .style("stroke", "#ffd700");  //restyle the line-height
-    };
+};
+
 function setLabel(props){
   var labelAttribute = "<h1>"+props[expressed]+
                        "</h1><br><b>"+expressed+"</b>";  //label content
@@ -343,14 +333,14 @@ function setLabel(props){
       .attr("class", "infolabel")  //for styling  label
       .attr("id", props.adm0_a3+"label")  //label for div
       .html(labelAttribute)  //add text
-      .append("div")  //add child div for feature name
+
+  var countryName = infolabel.append("div")
       .attr("class", "labelname")  //for styliing name
       .html(labelName);  //add feature name to label
 
 };
 
 function sequence(axis, csvData){
-
   //restyle the axis
   d3.selectAll(".axes")  //select every axis
       .style("stroke-width", "5px");  //make them all thin
@@ -368,22 +358,19 @@ function sequence(axis, csvData){
       .text(function(d){
           return choropleth(d, colorScale(csvData));
       });
-
-
-
 };
-//function to highlight enumeration units and bars
-function highlight(props){
 
-        if (props.adm0_a3 < 1){
+function highlight(props){
+    if (props.adm0_a3 < 1){
           return false
-        };
+    };
       //change stroke
       var selected = d3.selectAll("." + props.adm0_a3.replace(/ /g,"_"))//replace space with "_"
         .style("stroke", "blue")//stroke of highlight
         .style("stroke-width", "2");
         setLabel(props)//calling setLabel and pass props to to allow the label to appear when highlight on the county
-};//function to dehighlight enumeration units and bars
+};
+
 function dehighlight(props){
   if (props.adm0_a3 < 1){
     return false
@@ -395,10 +382,12 @@ function dehighlight(props){
         .style("stroke-width", function(){
             return getStyle(this, "stroke-width")
         });
-      };
+    d3.select(".infolabel")
+        .remove();
+};
 
-      //turns calls into seperate funtions to get information stored in the desc element for that style
-      function getStyle(element, styleName){
+//turns calls into seperate funtions to get information stored in the desc element for that style
+function getStyle(element, styleName){
           var styleText = d3.select(element)
               .select("desc")
               .text();
@@ -406,10 +395,10 @@ function dehighlight(props){
           var styleObject = JSON.parse(styleText);
 
           return styleObject[styleName];
-      };
+};
 
-      //function to move info label with mouse
-      function moveLabel(){
+//function to move info label with mouse
+function moveLabel(){
         //get width of label
           var labelWidth = d3.select(".infolabel")
               .node()
@@ -430,5 +419,6 @@ function dehighlight(props){
           d3.select(".infolabel")//moves label off the page so it doesnt flicker
               .style("left", x + "px")
               .style("top", y + "px");
-      };
+};
+
 })();
