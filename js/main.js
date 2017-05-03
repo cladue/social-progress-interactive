@@ -368,7 +368,8 @@ function highlight(props){
       var selected = d3.selectAll("." + props.adm0_a3.replace(/ /g,"_"))//replace space with "_"
         .style("stroke", "blue")//stroke of highlight
         .style("stroke-width", "2");
-        setLabel(props)//calling setLabel and pass props to to allow the label to appear when highlight on the county
+
+    setLabel(props)//calling setLabel and pass props to to allow the label to appear when highlight on the county
 };
 
 function dehighlight(props){
